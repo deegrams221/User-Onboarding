@@ -1,12 +1,13 @@
 import React from 'react';
 import {withFormik, Form, Field} from 'formik';
 import * as Yup from 'yup';
+import axios from 'axios';
 
-function LoginForm({errors, touched, values}) {
+function LoginForm({errors, touched, values, isSubmitting}) {
   return(
     <Form>
       <div>
-        {/* step 2: Erros  */}
+        {/* Step 2: Errors  */}
         {errors.name && touched.name && <p>{errors.name}</p>}
         <Field type="text" name="name" placeholder="Name" />
       </div>
@@ -22,7 +23,7 @@ function LoginForm({errors, touched, values}) {
         <Field type="checkbox" name="tos" checked={values.tos} />
         Accept Terms of Service
       </label>
-      <button>Submit</button>
+      <button disabled={isSubmitting}>Submit</button>
     </Form>
   );
 }
@@ -50,12 +51,22 @@ const FormikLoginForm = withFormik ({
       .required("Password is required")      
   }),
 
-  handleSubmit(values) {
+  handleSubmit(values, {resetForm, setSubmitting}) {
     console.log(values);
+    // Step 3: Post
+    axios
+      .post("https://reqres.in/api/users", values)
+      .then(res => {
+        console.log(res);
+        resetForm();
+        setSubmitting(false);
+      })
+      .catch(error => {
+        console.log(error);
+        setSubmitting(false);
+      });
   }
 
 })(LoginForm);
 
-
-
-export default LoginForm;
+export default FormikLoginForm;
